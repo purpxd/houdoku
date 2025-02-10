@@ -99,11 +99,11 @@ export function ChapterTable(props: ChapterTableProps) {
         <div className="flex justify-start">
           <span className="w-5 h-5">
             <Checkbox
-              checked={
-                table.getIsAllRowsSelected() ||
-                (table.getIsSomePageRowsSelected() && 'indeterminate')
-              }
-              onCheckedChange={(value) => table.toggleAllRowsSelected(!!value)}
+              checked={table.getIsAllPageRowsSelected()}
+              onCheckedChange={(value) => {
+                console.log(value)
+                table.toggleAllPageRowsSelected(!!value)
+              }}
             />
           </span>
         </div>
