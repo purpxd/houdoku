@@ -34,11 +34,17 @@ import { Chapter, Languages, Series } from '@tiyo/common';
 import routes from '@/common/constants/routes.json';
 import {
   DropdownMenu,
+  DropdownMenuGroup,
+  DropdownMenuSub,
+  DropdownMenuPortal,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuItem
 } from '@houdoku/ui/components/DropdownMenu';
 import { Button } from '@houdoku/ui/components/Button';
 import {
@@ -48,6 +54,7 @@ import {
   Download,
   Eye,
   EyeOff,
+  EllipsisVertical,
   FileCheck,
   LanguagesIcon,
   Play,
@@ -100,10 +107,7 @@ export function ChapterTable(props: ChapterTableProps) {
           <span className="w-5 h-5">
             <Checkbox
               checked={table.getIsAllPageRowsSelected()}
-              onCheckedChange={(value) => {
-                console.log(value)
-                table.toggleAllPageRowsSelected(!!value)
-              }}
+              onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             />
           </span>
         </div>
@@ -269,6 +273,11 @@ export function ChapterTable(props: ChapterTableProps) {
     return table.getSelectedRowModel().rows.map((row) => row.original) as Chapter[];
   };
 
+  const getAllChapters = (): Chapter[] => {
+    console.log(table.getCoreRowModel())
+    return table.getCoreRowModel().rows.map((row) => row.original) as Chapter[];
+  };
+
   const getNextUnreadChapter = () => {
     return sortedFilteredChapterList
       .slice()
@@ -300,6 +309,17 @@ export function ChapterTable(props: ChapterTableProps) {
     );
   };
 
+  const setAllRead = (read: boolean) => {
+    markChapters(
+      getAllChapters(),
+      props.series,
+      read,
+      setChapterList,
+      setSeries,
+      chapterLanguages,
+    );
+  };
+
   const downloadSelected = () => {
     downloaderClient.add(
       getSelectedChapters().map((chapter) => ({
@@ -311,75 +331,180 @@ export function ChapterTable(props: ChapterTableProps) {
     downloaderClient.start();
   };
 
+  const downloadAll = () => {
+    downloaderClient.add(
+      getAllChapters().map((chapter) => ({
+        chapter,
+        series: props.series,
+        downloadsDir: customDownloadsDir || defaultDownloadsDir,
+      })),
+    );
+    downloaderClient.start();
+  };
+
   return (
+    // notes: bring back the selected buttons. it will be annoying to open drop down each time
     <div className="space-y-2 pb-4">
       <div className="flex items-center justify-between">
-        {table.getIsSomeRowsSelected() || table.getIsAllRowsSelected() ? (
-          <div className="flex space-x-2 items-end">
-            <Button className="ml-auto" onClick={() => setSelectedRead(true)}>
-              <Eye className="w-4 h-4" />
-              Mark selected read
-            </Button>
-            <Button className="ml-auto" onClick={() => setSelectedRead(false)}>
-              <EyeOff className="w-4 h-4" />
-              Mark selected unread
-            </Button>
-            {/* TODO add confirmation prompt */}
-            <Button className="ml-auto" onClick={() => downloadSelected()}>
-              <Download className="w-4 h-4" />
-              Download selected
-            </Button>
-          </div>
-        ) : (
-          <>
-            <div className="flex space-x-2">
-              <ChapterTableLanguageFilter />
-              <ChapterTableGroupFilter
-                uniqueGroupNames={Array.from(
-                  new Set(chapterList.map((chapter) => chapter.groupName)),
-                )}
-              />
-            </div>
-            <div className="flex space-x-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="ml-auto">
-                    <Settings2 className="w-4 h-4" />
-                    View
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Columns</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {table
-                    .getAllColumns()
-                    .filter((column) => column.getCanHide())
-                    .map((column) => {
-                      return (
-                        <DropdownMenuCheckboxItem
-                          key={column.id}
-                          className="capitalize"
-                          checked={column.getIsVisible()}
-                          onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                          onSelect={(event) => event.preventDefault()}
+        <div className="flex space-x-2">
+          <ChapterTableLanguageFilter />
+          <ChapterTableGroupFilter
+            uniqueGroupNames={Array.from(
+              new Set(chapterList.map((chapter) => chapter.groupName)),
+            )}
+          />
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <EllipsisVertical className="w-4 h-4" />
+                Options</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-51" align="start">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Download Chapters</DropdownMenuLabel>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <div
+                      className="flex items-center w-full"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download
+                    </div>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem>
+                        <div
+                          onClick={() => downloadAll()}
+                          className="flex items-center w-full"
                         >
-                          {column.id}
-                        </DropdownMenuCheckboxItem>
-                      );
-                    })}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {getNextUnreadChapter() && (
-                <Link to={`${routes.READER}/${props.series.id}/${getNextUnreadChapter()?.id}`}>
-                  <Button variant="outline">
-                    <Play className="w-4 h-4" />
-                    Continue
-                  </Button>
-                </Link>
-              )}
+                          <span>All Chapters</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <div
+                          onClick={() => downloadSelected()}
+                          className="flex items-center w-full"
+                        >
+                          <span>Selected Chapters</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>Mark Chapters</DropdownMenuLabel>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>All Chapters</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem>
+                        <div
+                          onClick={() => setAllRead(true)}
+                          className="flex items-center w-full"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          <span>Read</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem>
+                        <div
+                          onClick={() => setAllRead(false)}
+                          className="flex items-center w-full"
+                        >
+                          <EyeOff className="w-4 h-4 mr-2" />
+                          <span>Unread</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>Selected Chapters</DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem>
+                        <div
+                          onClick={() => setSelectedRead(true)}
+                          className="flex items-center w-full"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          <span>Read</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>
+                        <div
+                          onClick={() => setSelectedRead(false)}
+                          className="flex items-center w-full"
+                        >
+                          <EyeOff className="w-4 h-4 mr-2" />
+                          <span>Unread</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {table.getIsSomeRowsSelected() && (
+            <div className="flex space-x-2 items-end">
+              <Button variant="outline" className="ml-auto" onClick={() => setSelectedRead(true)}>
+                <Eye className="w-4 h-4" />
+                Mark selected read
+              </Button>
+              <Button variant="outline" className="ml-auto" onClick={() => setSelectedRead(false)}>
+                <EyeOff className="w-4 h-4" />
+                Mark selected unread
+              </Button>
             </div>
-          </>
-        )}
+          )}
+        </div>
+
+        <div className="flex space-x-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                <Settings2 className="w-4 h-4" />
+                View
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Columns</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                      onSelect={(event) => event.preventDefault()}
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          {getNextUnreadChapter() && (
+            <Link to={`${routes.READER}/${props.series.id}/${getNextUnreadChapter()?.id}`}>
+              <Button variant="outline">
+                <Play className="w-4 h-4" />
+                Continue
+              </Button>
+            </Link>
+          )}
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
