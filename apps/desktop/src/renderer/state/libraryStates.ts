@@ -95,6 +95,11 @@ export const activeSeriesListState = selector({
   },
 });
 
+export const ReadChaptersState = atom({
+  key: 'ReadChaptersState',
+  default: false,
+});
+
 export const sortedFilteredChapterListState = selector<Chapter[]>({
   key: 'sortedFilteredChapterListState',
   get: ({ get }) => {
@@ -103,8 +108,8 @@ export const sortedFilteredChapterListState = selector<Chapter[]>({
     const chapterFilterGroupNames = get(chapterFilterGroupNamesState);
     const chapterListVolOrder = get(chapterListVolOrderState);
     const chapterListChOrder = get(chapterListChOrderState);
-
     const uniqueChapters = new Map();
+    const toggleReadChapters = get(ReadChaptersState);
 
     if (chapterLanguages.length > 0) {
       chapterLanguages.forEach((lang) => {
@@ -129,8 +134,9 @@ export const sortedFilteredChapterListState = selector<Chapter[]>({
           (uniqueChapters.has(chapter.chapterNumber) &&
             uniqueChapters.get(chapter.chapterNumber) === chapter) ||
           chapterLanguages.length === 0;
+        const readChapters = !toggleReadChapters || !chapter.read;
 
-        return matchesLanguage && matchesGroup && unique;
+        return matchesLanguage && matchesGroup && unique && readChapters;
       })
       .sort((a, b) => {
         const volumeComp = {

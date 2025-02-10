@@ -71,6 +71,7 @@ import { TableColumnSortOrder } from '@/common/models/types';
 import { FS_METADATA } from '@/common/temp_fs_metadata';
 import { ContextMenu, ContextMenuTrigger } from '@houdoku/ui/components/ContextMenu';
 import { ChapterTableContextMenu } from './ChapterTableContextMenu';
+import { ChapterTableReadFilter } from './ChapterTableReadFilter';
 import { useEffect } from 'react';
 import { currentTaskState } from '@/renderer/state/downloaderStates';
 
@@ -354,7 +355,7 @@ export function ChapterTable(props: ChapterTableProps) {
                 Filters
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-51 flex flex-col gap-1" align="start">
+            <DropdownMenuContent className="w-51 flex flex-col" align="start">
               <DropdownMenuItem asChild>
                 <ChapterTableLanguageFilter />
               </DropdownMenuItem>
@@ -365,6 +366,10 @@ export function ChapterTable(props: ChapterTableProps) {
                     new Set(chapterList.map((chapter) => chapter.groupName)),
                   )}
                 />
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <ChapterTableReadFilter />
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
