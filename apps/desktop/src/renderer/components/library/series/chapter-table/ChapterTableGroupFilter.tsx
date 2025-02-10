@@ -1,4 +1,4 @@
-import { Check, Filter } from 'lucide-react';
+import { Check, ChevronRight } from 'lucide-react';
 
 import { cn } from '@houdoku/ui/util';
 import { Badge } from '@houdoku/ui/components/Badge';
@@ -35,9 +35,14 @@ export function ChapterTableGroupFilter(props: Props) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="outline" onContextMenu={() => setFilterGroupNames([])}>
-          <Filter />
+        <div
+          className="flex items-center justify-between px-2 py-1.5 mr-2 text-sm cursor-pointer relative w-full rounded-md transition-colors focus:outline-none hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground active:bg-accent/80"
+          onContextMenu={() => setFilterGroupNames([])}>
           {'Group'}
+
+          {filterGroupNames.length <= 0 && (
+            <ChevronRight className="h-4" />
+          )}
           {filterGroupNames.length > 0 && (
             <>
               <Separator orientation="vertical" className="mx-2 h-4" />
@@ -51,9 +56,9 @@ export function ChapterTableGroupFilter(props: Props) {
               </div>
             </>
           )}
-        </Button>
+        </div>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px] p-0" align="start">
+      <PopoverContent className="w-[200px] p-0" align="start" side="right">
         <Command>
           <CommandInput placeholder={'Group'} />
           <CommandList className="-mr-3">
