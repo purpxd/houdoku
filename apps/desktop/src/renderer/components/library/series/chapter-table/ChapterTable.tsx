@@ -55,6 +55,7 @@ import {
   Eye,
   EyeOff,
   EllipsisVertical,
+  Filter,
   FileCheck,
   LanguagesIcon,
   Play,
@@ -343,17 +344,30 @@ export function ChapterTable(props: ChapterTableProps) {
   };
 
   return (
-    // notes: bring back the selected buttons. it will be annoying to open drop down each time
     <div className="space-y-2 pb-4">
       <div className="flex items-center justify-between">
         <div className="flex space-x-2">
-          <ChapterTableLanguageFilter />
-          <ChapterTableGroupFilter
-            uniqueGroupNames={Array.from(
-              new Set(chapterList.map((chapter) => chapter.groupName)),
-            )}
-          />
-
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Filter className="w-4 h-4" />
+                Filters
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-51 flex flex-col gap-1" align="start">
+              <DropdownMenuItem asChild>
+                <ChapterTableLanguageFilter />
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild className="w-full">
+                <ChapterTableGroupFilter
+                  uniqueGroupNames={Array.from(
+                    new Set(chapterList.map((chapter) => chapter.groupName)),
+                  )}
+                />
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline">
