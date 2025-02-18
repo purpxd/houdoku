@@ -48,6 +48,7 @@ import {
   DropdownMenuItem
 } from '@houdoku/ui/components/DropdownMenu';
 import { Button } from '@houdoku/ui/components/Button';
+import { ScrollArea } from '@houdoku/ui/components/ScrollArea';
 import {
   ArrowDown,
   ArrowUp,
@@ -353,7 +354,7 @@ export function ChapterTable(props: ChapterTableProps) {
       <div className="flex items-center justify-between">
         <div className="flex space-x-2">
           <DropdownMenu>
-            <Button variant="outline" className="flex items-center">
+            <Button variant="outline">
               <DropdownMenuTrigger asChild>
                 <div className="flex flex-row items-center">
                   <Filter className="w-4 h-4 mr-2" />
@@ -546,9 +547,9 @@ export function ChapterTable(props: ChapterTableProps) {
           )}
         </div>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border portrait:max-h-[65vh] landscape:max-h-[50vh] overflow-y-auto">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 bg-secondary">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
