@@ -18,6 +18,7 @@ import {
 import { ChapterTablePagination } from './ChapterTablePagination';
 import {
   chapterDownloadStatusesState,
+  chapterFilterGroupNamesState,
   chapterListState,
   seriesState,
   sortedFilteredChapterListState,
@@ -60,13 +61,16 @@ import {
   LanguagesIcon,
   Play,
   Settings2,
+  X,
 } from 'lucide-react';
 import { ChapterTableLanguageFilter } from './ChapterTableLanguageFilter';
 import { ChapterTableGroupFilter } from './ChapterTableGroupFilter';
 import { markChapters } from '@/renderer/features/library/utils';
 import { downloaderClient } from '@/renderer/services/downloader';
 import ipcChannels from '@/common/constants/ipcChannels.json';
+import { Badge } from '@houdoku/ui/components/Badge';
 import { Checkbox } from '@houdoku/ui/components/Checkbox';
+import { Separator } from '@houdoku/ui/components/Separator';
 import { TableColumnSortOrder } from '@/common/models/types';
 import { FS_METADATA } from '@/common/temp_fs_metadata';
 import { ContextMenu, ContextMenuTrigger } from '@houdoku/ui/components/ContextMenu';
@@ -92,7 +96,8 @@ export function ChapterTable(props: ChapterTableProps) {
   const setSeries = useSetRecoilState(seriesState);
   const [chapterList, setChapterList] = useRecoilState(chapterListState);
   const sortedFilteredChapterList = useRecoilValue(sortedFilteredChapterListState);
-  const chapterLanguages = useRecoilValue(chapterLanguagesState);
+  const [filterGroupNames, setFilterGroupNames] = useRecoilState(chapterFilterGroupNamesState);
+  const [chapterLanguages, setChapterLanguages] = useRecoilState(chapterLanguagesState);
   const [chapterListVolOrder, setChapterListVolOrder] = useRecoilState(chapterListVolOrderState);
   const [chapterListChOrder, setChapterListChOrder] = useRecoilState(chapterListChOrderState);
   const [chapterDownloadStatuses, setChapterDownloadStatuses] = useRecoilState(
@@ -276,7 +281,6 @@ export function ChapterTable(props: ChapterTableProps) {
   };
 
   const getAllChapters = (): Chapter[] => {
-    console.log(table.getCoreRowModel())
     return table.getCoreRowModel().rows.map((row) => row.original) as Chapter[];
   };
 
@@ -349,13 +353,44 @@ export function ChapterTable(props: ChapterTableProps) {
       <div className="flex items-center justify-between">
         <div className="flex space-x-2">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                <Filter className="w-4 h-4" />
-                Filters
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-51 flex flex-col" align="start">
+            <Button variant="outline" className="flex items-center">
+              <DropdownMenuTrigger asChild>
+                <div className="flex flex-row items-center">
+                  <Filter className="w-4 h-4 mr-2" />
+                  Filters
+                </div>
+              </DropdownMenuTrigger>
+              {(chapterLanguages.length > 0 || filterGroupNames.length > 0) && (
+                <Separator orientation="vertical" className="mx-2 h-4" />
+              )}
+              <div className="flex flex-row flex-wrap gap-1">
+                {chapterLanguages.length > 0 && (
+                  <Badge
+                    variant="default"
+                    className="rounded-sm px-2 py-0.5 font-normal flex items-center"
+                    onClick={() => {
+                      setChapterLanguages([]);
+                    }}
+                  >
+                    <X className="w-3 h-3 mr-1 text-red-500" />
+                    Languages
+                  </Badge>
+                )}
+                {filterGroupNames.length > 0 && (
+                  <Badge
+                    variant="default"
+                    className="rounded-sm px-2 py-0.5 font-normal flex items-center"
+                    onClick={() => {
+                      setFilterGroupNames([]);
+                    }}
+                  >
+                    <X className="w-3 h-3 mr-1 text-red-500" />
+                    Groups
+                  </Badge>
+                )}
+              </div>
+            </Button>
+            <DropdownMenuContent className="w-51 flex flex-col" align="start" alignOffset={-17} sideOffset={12}>
               <DropdownMenuItem asChild>
                 <ChapterTableLanguageFilter />
               </DropdownMenuItem>
@@ -401,7 +436,6 @@ export function ChapterTable(props: ChapterTableProps) {
                           <span>All Chapters</span>
                         </div>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem>
                         <div
                           onClick={() => downloadSelected()}
@@ -430,7 +464,6 @@ export function ChapterTable(props: ChapterTableProps) {
                           <span>Read</span>
                         </div>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem>
                         <div
                           onClick={() => setAllRead(false)}
@@ -472,18 +505,6 @@ export function ChapterTable(props: ChapterTableProps) {
               </DropdownMenuGroup>
             </DropdownMenuContent>
           </DropdownMenu>
-          {table.getIsSomeRowsSelected() && (
-            <div className="flex space-x-2 items-end">
-              <Button variant="outline" className="ml-auto" onClick={() => setSelectedRead(true)}>
-                <Eye className="w-4 h-4" />
-                Mark selected read
-              </Button>
-              <Button variant="outline" className="ml-auto" onClick={() => setSelectedRead(false)}>
-                <EyeOff className="w-4 h-4" />
-                Mark selected unread
-              </Button>
-            </div>
-          )}
         </div>
 
         <div className="flex space-x-2">

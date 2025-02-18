@@ -1,8 +1,6 @@
 import { Check, ChevronRight } from 'lucide-react';
-
 import { cn } from '@houdoku/ui/util';
 import { Badge } from '@houdoku/ui/components/Badge';
-import { Button } from '@houdoku/ui/components/Button';
 import {
   Command,
   CommandEmpty,

@@ -1,27 +1,28 @@
 import { useRecoilState } from 'recoil';
-import { ReadChaptersState } from '@/renderer/state/libraryStates';
-import { Check, Square } from 'lucide-react';
-
+import { hideUnreadChaptersState } from '@/renderer/state/libraryStates';
+import { Checkbox } from '@houdoku/ui/components/Checkbox';
+import { Label } from '@houdoku/ui/components/Label';
 export function ChapterTableReadFilter() {
-  const [hideReadChapters, setHideReadChapters] = useRecoilState(ReadChaptersState);
+  const [hideReadChapters, setHideReadChapters] = useRecoilState(hideUnreadChaptersState);
 
   const toggleReadChapters = () => {
     setHideReadChapters(!hideReadChapters);
   };
 
   return (
-    <div
-      className="flex items-center space-x-2 cursor-pointer"
-      onClick={toggleReadChapters}
-    >
-      {hideReadChapters ? (
-        <Check className="h-5 w-5 text-blue-500" />
-      ) : (
-        <Square className="h-5 w-5 text-gray-500" />
-      )}
-      <span className="text-sm">
-        Hide Read
-      </span>
+    <div className="flex items-center space-x-2" onClick={(e) => e.stopPropagation()}>
+      <Checkbox
+        id="hide-read"
+        checked={hideReadChapters}
+        onCheckedChange={toggleReadChapters}
+      />
+      <Label
+        htmlFor="hide-read"
+        className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+      >
+        Hide read
+      </Label>
     </div>
+
   );
 };

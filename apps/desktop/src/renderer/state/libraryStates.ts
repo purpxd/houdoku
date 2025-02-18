@@ -95,8 +95,8 @@ export const activeSeriesListState = selector({
   },
 });
 
-export const ReadChaptersState = atom({
-  key: 'ReadChaptersState',
+export const hideUnreadChaptersState = atom({
+  key: 'hideUnreadChaptersState',
   default: false,
 });
 
@@ -109,7 +109,7 @@ export const sortedFilteredChapterListState = selector<Chapter[]>({
     const chapterListVolOrder = get(chapterListVolOrderState);
     const chapterListChOrder = get(chapterListChOrderState);
     const uniqueChapters = new Map();
-    const toggleReadChapters = get(ReadChaptersState);
+    const toggleReadChapters = get(hideUnreadChaptersState);
 
     if (chapterLanguages.length > 0) {
       chapterLanguages.forEach((lang) => {
